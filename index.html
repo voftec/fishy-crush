@@ -22,78 +22,84 @@
     color:var(--red2);user-select:none;-webkit-user-select:none;touch-action:none;
     display:flex;flex-direction:column;align-items:center;
   }
-  #sun{position:fixed;z-index:0;top:16%;left:50%;transform:translateX(-50%);
-    width:130vmin;height:130vmin;border-radius:50%;pointer-events:none;
+  #sun{position:fixed;z-index:0;top:15%;left:50%;transform:translateX(-50%);
+    width:135vmin;height:135vmin;border-radius:50%;pointer-events:none;
     background:
-      radial-gradient(circle, rgba(255,243,214,.35) 0 62%, transparent 63%),
-      repeating-conic-gradient(rgba(200,16,46,.16) 0deg 2deg, transparent 2deg 8deg),
-      radial-gradient(circle, var(--red) 0 58%, transparent 58.5%),
-      radial-gradient(circle, var(--red2) 0 66%, transparent 66.5%);
-    opacity:.9}
+      radial-gradient(circle, rgba(255,243,214,.32) 0 58%, transparent 59%),
+      repeating-conic-gradient(rgba(200,16,46,.14) 0deg 2deg, transparent 2deg 8deg),
+      radial-gradient(circle, var(--red) 0 55%, transparent 55.5%),
+      radial-gradient(circle, var(--red2) 0 64%, transparent 64.5%);
+    opacity:.85}
   .lines{position:fixed;z-index:0;pointer-events:none;opacity:.55}
   .lines i{display:block;height:5px;border-radius:3px;background:var(--red);margin:6px 0;
     box-shadow:2px 2px 0 var(--cream)}
 
+  /* ---------- HUD ---------- */
   #hud{width:100%;max-width:520px;padding:calc(env(safe-area-inset-top) + 12px) 14px 8px;
     display:flex;align-items:center;gap:12px;z-index:3}
-  #cat{width:54px;height:54px;flex:none;overflow:visible}
+  #cat{width:56px;height:56px;flex:none;overflow:visible;
+    filter:drop-shadow(2px 3px 0 rgba(122,10,30,.35))}
   #cat.swiping{animation:swipe .4s ease}
   @keyframes swipe{30%{transform:rotate(-28deg) translateX(8px) scale(1.15)}60%{transform:rotate(18deg)}}
-  #title{font-size:24px;font-weight:900;letter-spacing:2px;color:var(--red);line-height:.95;
-    text-shadow:2px 2px 0 var(--cream),3px 3px 0 rgba(142,12,34,.35);text-transform:uppercase}
-  #title small{display:block;font-size:11px;letter-spacing:6px;color:var(--ink)}
+  #title{font-size:26px;font-weight:900;letter-spacing:2px;color:var(--red);line-height:.95;
+    text-shadow:2px 2px 0 var(--cream),4px 4px 0 rgba(142,12,34,.35);text-transform:uppercase}
+  #title small{display:block;font-size:11px;letter-spacing:7px;color:var(--ink)}
   #moves{margin-left:auto;background:var(--red);color:var(--cream);
     border:3px solid var(--cream);outline:2px solid var(--red2);
-    border-radius:12px;padding:5px 13px;text-align:center;flex:none;
-    box-shadow:4px 4px 0 rgba(122,10,30,.35)}
-  #moves b{font-size:21px;display:block;line-height:1}
+    border-radius:14px;padding:5px 14px;text-align:center;flex:none;
+    box-shadow:4px 4px 0 rgba(122,10,30,.4),inset 0 2px 0 rgba(255,243,214,.35)}
+  #moves b{font-size:22px;display:block;line-height:1}
   #moves span{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:1px}
 
   #scorebar{width:100%;max-width:520px;padding:4px 16px 10px;z-index:3}
-  #progress{height:18px;border-radius:10px;background:var(--cream);
-    border:2px solid var(--red);outline:1px solid var(--cream);overflow:hidden;position:relative;
+  #progress{height:20px;border-radius:11px;background:var(--cream);
+    border:2px solid var(--red);outline:2px solid var(--cream);overflow:visible;position:relative;
     box-shadow:inset 0 0 0 2px var(--cream),3px 3px 0 rgba(122,10,30,.25)}
-  #fill{height:100%;width:0%;transition:width .4s cubic-bezier(.3,1.3,.4,1);
-    background:repeating-linear-gradient(-55deg,var(--red) 0 10px,var(--red2) 10px 20px)}
+  #fill{height:calc(100% - 4px);margin:2px;width:0%;max-width:calc(100% - 4px);border-radius:8px;
+    transition:width .4s cubic-bezier(.3,1.3,.4,1);
+    background:repeating-linear-gradient(-55deg,var(--red) 0 10px,var(--red2) 10px 20px);
+    box-shadow:inset 0 2px 0 rgba(255,243,214,.4)}
   #ptext{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
     font-size:10px;font-weight:900;letter-spacing:1px;color:var(--ink);
     text-shadow:0 1px 0 var(--cream)}
-  /* stars over progress bar */
-  #stars{position:absolute;inset:-4px 0;display:flex;justify-content:space-between;align-items:flex-end;
-    padding:0 8%;pointer-events:none}
-  .star{font-size:14px;filter:grayscale(1) opacity(.4)}
+  #stars{position:absolute;top:-10px;left:0;right:0;display:flex;justify-content:space-between;
+    padding:0 14%;pointer-events:none}
+  .star{font-size:18px;filter:grayscale(1) opacity(.45);transform:translateY(-2px)}
   .star.on{filter:none;animation:starpop .4s cubic-bezier(.3,1.6,.5,1)}
   @keyframes starpop{0%{transform:scale(0)}70%{transform:scale(1.5)}}
 
+  /* ---------- board ---------- */
   #stage{flex:1;width:100%;display:flex;align-items:center;justify-content:center;z-index:2;position:relative}
   #board{
-    display:grid;gap:6px;padding:12px;border-radius:26px;touch-action:none;
-    background:var(--red);
+    display:grid;gap:6px;padding:14px;border-radius:28px;touch-action:none;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(255,243,214,.18) 0 2px, transparent 2.5px) 0 0/26px 26px,
+      linear-gradient(160deg,#D2152F,var(--red));
     border:4px solid var(--cream);outline:3px solid var(--red2);
-    box-shadow:8px 8px 0 rgba(122,10,30,.4),inset 0 0 0 3px var(--red2)}
+    box-shadow:8px 8px 0 rgba(122,10,30,.45),inset 0 0 0 3px var(--red2),inset 0 4px 0 rgba(255,243,214,.2)}
   .cell{position:relative;border-radius:50%;display:flex;align-items:center;justify-content:center;
     cursor:pointer;transition:transform .15s;
     background:
+      radial-gradient(circle at 32% 26%, rgba(255,255,255,.85) 0 8%, transparent 20%),
       radial-gradient(circle at 65% 60%, rgba(200,16,46,.12) 0 1px, transparent 1.2px) 0 0/8px 8px,
-      var(--cream);
-    box-shadow:inset 0 0 0 2px var(--red),inset 0 -4px 0 rgba(200,16,46,.15)}
+      radial-gradient(circle at 50% 42%, #FFF9E8 0 55%, var(--cream) 100%);
+    box-shadow:inset 0 0 0 2px var(--red),inset 0 -5px 0 rgba(200,16,46,.18),inset 0 3px 4px #fff}
   .cell.sel{transform:scale(1.15);z-index:3;
-    box-shadow:inset 0 0 0 3px var(--red2),0 0 0 3px var(--cream),0 0 20px var(--cream)}
-  .fish{width:80%;height:80%;animation:bob 3s ease-in-out infinite;
-    filter:drop-shadow(1px 2px 0 rgba(122,10,30,.35))}
+    box-shadow:inset 0 0 0 3px var(--red2),0 0 0 3px var(--cream),0 0 24px var(--cream)}
+  .fish{width:84%;height:84%;animation:bob 3s ease-in-out infinite;
+    filter:drop-shadow(1px 2px 0 rgba(122,10,30,.4))}
   @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
   .cell.hint{animation:hint .9s infinite}
-  @keyframes hint{50%{transform:scale(.82);filter:brightness(1.15)}}
+  @keyframes hint{50%{transform:scale(.82);filter:brightness(1.2)}}
   .cell.matched{animation:pop .32s forwards}
-  @keyframes pop{35%{transform:scale(1.35) rotate(15deg)}100%{transform:scale(0) rotate(-15deg)}}
+  @keyframes pop{35%{transform:scale(1.4) rotate(15deg)}100%{transform:scale(0) rotate(-15deg)}}
   .cell.born{animation:born .3s cubic-bezier(.3,1.5,.5,1)}
   @keyframes born{0%{transform:scale(0) rotate(90deg)}100%{transform:scale(1)}}
-  /* special glows */
   .cell.sp .fish{animation:spglow 1.6s ease-in-out infinite}
-  @keyframes spglow{0%,100%{filter:drop-shadow(1px 2px 0 rgba(122,10,30,.35))}
-    50%{filter:drop-shadow(0 0 8px var(--red)) drop-shadow(1px 2px 0 rgba(122,10,30,.35))}}
+  @keyframes spglow{0%,100%{filter:drop-shadow(1px 2px 0 rgba(122,10,30,.4))}
+    50%{filter:drop-shadow(0 0 9px var(--red)) drop-shadow(1px 2px 0 rgba(122,10,30,.4))}}
   .cell.sp-b{animation:bombpulse 1.2s infinite}
-  @keyframes bombpulse{50%{box-shadow:inset 0 0 0 3px var(--red2),0 0 16px var(--red)}}
+  @keyframes bombpulse{50%{box-shadow:inset 0 0 0 3px var(--red2),0 0 18px var(--red),inset 0 3px 4px #fff}}
 
   .scratch{position:absolute;inset:-6%;pointer-events:none;z-index:5}
   .scratch i{position:absolute;left:10%;width:80%;height:8%;border-radius:4px;
@@ -105,14 +111,14 @@
   @keyframes claw{0%{opacity:0;transform:rotate(-42deg) scaleX(.1)}35%{opacity:1}
     100%{opacity:0;transform:rotate(-42deg) scaleX(1.3)}}
 
-  /* beam for striped fish row/col clear */
   .beam{position:fixed;z-index:58;pointer-events:none;border-radius:8px;opacity:0;
     background:linear-gradient(90deg,transparent,var(--cream) 15%,var(--red) 50%,var(--cream) 85%,transparent);
     animation:beamfx .4s forwards}
   .beam.v{background:linear-gradient(180deg,transparent,var(--cream) 15%,var(--red) 50%,var(--cream) 85%,transparent)}
   @keyframes beamfx{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
 
-  #paw{position:fixed;z-index:60;pointer-events:none;opacity:0;width:100px;height:100px}
+  #paw{position:fixed;z-index:60;pointer-events:none;opacity:0;width:110px;height:110px;
+    filter:drop-shadow(3px 5px 0 rgba(122,10,30,.4))}
   #paw.go{animation:pawfly .5s cubic-bezier(.2,.7,.4,1) forwards}
   @keyframes pawfly{
     0%{opacity:0;transform:translate(0,0) rotate(-35deg) scale(.5)}
@@ -142,20 +148,22 @@
     60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
 
   #msg{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:80;
-    background:rgba(242,194,0,.55);backdrop-filter:blur(6px)}
+    background:rgba(242,194,0,.5);backdrop-filter:blur(7px)}
   #msg .card{background:var(--cream);border:4px solid var(--red);outline:3px solid var(--cream);
-    box-shadow:8px 8px 0 rgba(122,10,30,.5),inset 0 0 0 2px var(--red2);
-    border-radius:24px;padding:30px 26px;text-align:center;max-width:340px;width:86vw;
+    box-shadow:10px 10px 0 rgba(122,10,30,.5),inset 0 0 0 2px var(--red2),inset 0 4px 0 #fff;
+    border-radius:26px;padding:30px 26px;text-align:center;max-width:340px;width:86vw;
     background-image:radial-gradient(circle at 80% 10%, rgba(200,16,46,.10) 0 1.5px, transparent 1.6px);
     background-size:12px 12px}
-  #msg .big{width:84px;height:84px;margin:0 auto 8px}
-  #msg .mstars{font-size:34px;letter-spacing:6px;margin-bottom:4px}
+  #msg .big{width:90px;height:90px;margin:0 auto 8px}
+  #msg .mstars{font-size:36px;letter-spacing:8px;margin-bottom:4px}
   #msg h2{color:var(--red);margin-bottom:8px;font-size:26px;letter-spacing:1px;text-transform:uppercase;
     text-shadow:2px 2px 0 var(--y)}
   #msg p{color:var(--ink);opacity:.9;font-size:14px;margin-bottom:20px;line-height:1.5;font-family:Arial,sans-serif;font-weight:600}
-  #msg button{background:var(--red);border:3px solid var(--cream);outline:2px solid var(--red2);
-    color:var(--cream);font-weight:900;font-size:17px;padding:14px 34px;border-radius:14px;cursor:pointer;
-    letter-spacing:1px;text-transform:uppercase;box-shadow:4px 4px 0 rgba(122,10,30,.4)}
+  #msg button{background:linear-gradient(180deg,#D2152F,var(--red));border:3px solid var(--cream);
+    outline:2px solid var(--red2);
+    color:var(--cream);font-weight:900;font-size:17px;padding:14px 34px;border-radius:16px;cursor:pointer;
+    letter-spacing:1px;text-transform:uppercase;
+    box-shadow:5px 5px 0 rgba(122,10,30,.45),inset 0 2px 0 rgba(255,243,214,.4)}
   #msg button:active{transform:scale(.94)}
 </style>
 </head>
@@ -170,12 +178,18 @@
 
 <div id="hud">
   <svg id="cat" viewBox="0 0 60 60">
-    <circle cx="30" cy="30" r="27" fill="#FFF3D6" stroke="#C8102E" stroke-width="3"/>
-    <path d="M12 16 L20 8 L24 18 Z M48 16 L40 8 L36 18 Z" fill="#C8102E" stroke="#8E0C22" stroke-width="1.5"/>
-    <circle cx="22" cy="30" r="4" fill="#C8102E"/><circle cx="38" cy="30" r="4" fill="#C8102E"/>
-    <circle cx="23" cy="29" r="1.4" fill="#FFF3D6"/><circle cx="39" cy="29" r="1.4" fill="#FFF3D6"/>
-    <path d="M26 40 Q30 44 34 40" stroke="#C8102E" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-    <path d="M8 34 L18 35 M9 40 L18 38 M52 34 L42 35 M51 40 L42 38" stroke="#8E0C22" stroke-width="1.6" stroke-linecap="round"/>
+    <circle cx="30" cy="30" r="27" fill="#FFF3D6" stroke="#C8102E" stroke-width="3.5"/>
+    <path d="M11 17 L21 6 L25 19 Z" fill="#C8102E" stroke="#8E0C22" stroke-width="1.5"/>
+    <path d="M49 17 L39 6 L35 19 Z" fill="#C8102E" stroke="#8E0C22" stroke-width="1.5"/>
+    <path d="M15 16 L20 10 L22 17 Z" fill="#FFF3D6"/>
+    <path d="M45 16 L40 10 L38 17 Z" fill="#FFF3D6"/>
+    <ellipse cx="22" cy="30" rx="4.5" ry="5" fill="#C8102E"/>
+    <ellipse cx="38" cy="30" rx="4.5" ry="5" fill="#C8102E"/>
+    <circle cx="23.5" cy="28.5" r="1.6" fill="#FFF3D6"/>
+    <circle cx="39.5" cy="28.5" r="1.6" fill="#FFF3D6"/>
+    <path d="M28 36 L32 36 L30 39 Z" fill="#E8A020"/>
+    <path d="M26 41 Q30 45 34 41" stroke="#C8102E" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M7 33 L18 34 M8 39 L18 37 M53 33 L42 34 M52 39 L42 37" stroke="#8E0C22" stroke-width="1.6" stroke-linecap="round"/>
   </svg>
   <div id="title">FISHY<small>CRUSH</small></div>
   <div id="moves"><b id="mv">25</b><span>movs</span></div>
@@ -195,6 +209,8 @@
     <ellipse cx="43" cy="28" rx="8" ry="12" fill="#FFF3D6" stroke="#C8102E" stroke-width="4"/>
     <ellipse cx="60" cy="29" rx="8" ry="12" fill="#FFF3D6" stroke="#C8102E" stroke-width="4"/>
     <ellipse cx="75" cy="38" rx="8" ry="11" fill="#FFF3D6" stroke="#C8102E" stroke-width="4" transform="rotate(15 75 38)"/>
+    <circle cx="42" cy="60" r="4" fill="#C8102E" opacity=".35"/>
+    <circle cx="56" cy="62" r="4" fill="#C8102E" opacity=".35"/>
     <path d="M30 78 Q50 90 70 78" stroke="#C8102E" stroke-width="5" fill="none" stroke-linecap="round"/>
   </g>
 </svg>
@@ -202,11 +218,13 @@
 <div id="combo"></div>
 <div id="msg"><div class="card">
   <svg class="big" viewBox="0 0 60 60">
-    <circle cx="30" cy="30" r="27" fill="#FFF3D6" stroke="#C8102E" stroke-width="3"/>
-    <path d="M12 16 L20 8 L24 18 Z M48 16 L40 8 L36 18 Z" fill="#C8102E" stroke="#8E0C22" stroke-width="1.5"/>
-    <circle cx="22" cy="30" r="4" fill="#C8102E"/><circle cx="38" cy="30" r="4" fill="#C8102E"/>
-    <circle cx="23" cy="29" r="1.4" fill="#FFF3D6"/><circle cx="39" cy="29" r="1.4" fill="#FFF3D6"/>
-    <path d="M26 40 Q30 44 34 40" stroke="#C8102E" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <circle cx="30" cy="30" r="27" fill="#FFF3D6" stroke="#C8102E" stroke-width="3.5"/>
+    <path d="M11 17 L21 6 L25 19 Z M49 17 L39 6 L35 19 Z" fill="#C8102E" stroke="#8E0C22" stroke-width="1.5"/>
+    <ellipse cx="22" cy="30" rx="4.5" ry="5" fill="#C8102E"/>
+    <ellipse cx="38" cy="30" rx="4.5" ry="5" fill="#C8102E"/>
+    <circle cx="23.5" cy="28.5" r="1.6" fill="#FFF3D6"/><circle cx="39.5" cy="28.5" r="1.6" fill="#FFF3D6"/>
+    <path d="M28 36 L32 36 L30 39 Z" fill="#E8A020"/>
+    <path d="M26 41 Q30 45 34 41" stroke="#C8102E" stroke-width="2.5" fill="none" stroke-linecap="round"/>
   </svg>
   <div class="mstars" id="msg-stars"></div>
   <h2 id="msg-title">Fishy Crush</h2>
@@ -216,25 +234,70 @@
 
 <script>
 const COLS=8, ROWS=8;
-/* cell value: {t: type 0-5, s: null|'h'|'v'|'w'|'b'} */
+/* Detailed illustrated fish — red bodies, cream belly/fins, ochre accents, poster style */
 const FISH=[
-  `<svg class="fish" viewBox="0 0 40 40"><path d="M6 20 Q14 8 26 12 Q34 15 36 20 Q34 25 26 28 Q14 32 6 20 Z" fill="#C8102E" stroke="#8E0C22" stroke-width="1.5"/><path d="M6 20 L1 13 L3 20 L1 27 Z" fill="#C8102E" stroke="#8E0C22" stroke-width="1.5"/><circle cx="29" cy="18" r="2.2" fill="#FFF3D6"/><circle cx="30" cy="17.5" r="1" fill="#8E0C22"/><path d="M16 16 Q20 20 16 24 M20 15 Q24 20 20 25" stroke="#FFF3D6" stroke-width="1.6" fill="none"/></svg>`,
-  `<svg class="fish" viewBox="0 0 40 40"><path d="M4 20 Q16 11 30 15 Q37 18 38 20 Q37 22 30 25 Q16 29 4 20 Z" fill="#C8102E" stroke="#8E0C22" stroke-width="1.5"/><path d="M4 20 L0 15 L2 20 L0 25 Z" fill="#8E0C22"/><circle cx="31" cy="18" r="2" fill="#FFF3D6"/><path d="M12 18 L22 18 M12 22 L24 22" stroke="#FFF3D6" stroke-width="1.6" stroke-linecap="round"/></svg>`,
-  `<svg class="fish" viewBox="0 0 40 40"><circle cx="20" cy="21" r="12" fill="#C8102E" stroke="#8E0C22" stroke-width="1.5"/><path d="M20 6 L20 10 M28 9 L26.5 12 M33 15 L30 17 M34 24 L30.5 23 M28 32 L26 29 M14 32 L16 29 M7 27 L10 24.5 M6 18 L10 18 M11 10 L13 13" stroke="#C8102E" stroke-width="2.4" stroke-linecap="round"/><circle cx="16" cy="18" r="1.8" fill="#FFF3D6"/><circle cx="24" cy="18" r="1.8" fill="#FFF3D6"/><circle cx="20" cy="25" r="1.2" fill="#FFF3D6"/><circle cx="15" cy="26" r="1" fill="#FFF3D6"/><circle cx="25" cy="26" r="1" fill="#FFF3D6"/></svg>`,
-  `<svg class="fish" viewBox="0 0 40 40"><path d="M4 24 Q14 10 30 14 Q37 17 38 21 Q36 22 32 23 Q34 26 30 28 Q16 32 4 24 Z" fill="#C8102E" stroke="#8E0C22" stroke-width="1.5"/><path d="M16 13 L20 5 L24 13 Z" fill="#C8102E" stroke="#8E0C22" stroke-width="1.5"/><path d="M4 24 L0 19 L2 25 L0 30 Z" fill="#8E0C22"/><circle cx="31" cy="18" r="2" fill="#FFF3D6"/><path d="M28 24 L31 23 M26 25 L29 24" stroke="#FFF3D6" stroke-width="1.5"/></svg>`,
-  `<svg class="fish" viewBox="0 0 40 40"><path d="M12 22 Q12 8 20 8 Q28 8 28 22 L28 24 Q24 20 20 24 Q16 20 12 24 Z" fill="#C8102E" stroke="#8E0C22" stroke-width="1.5"/><path d="M12 24 Q8 30 12 33 Q14 30 15 26 M20 26 Q19 32 20 35 Q22 32 22 26 M28 24 Q32 30 28 33 Q26 30 25 26" stroke="#C8102E" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="16.5" cy="17" r="2" fill="#FFF3D6"/><circle cx="23.5" cy="17" r="2" fill="#FFF3D6"/><circle cx="17" cy="17" r=".8" fill="#8E0C22"/><circle cx="24" cy="17" r=".8" fill="#8E0C22"/></svg>`,
-  `<svg class="fish" viewBox="0 0 40 40"><path d="M30 8 Q36 16 30 26 Q22 34 12 30 Q6 26 10 20 Q14 15 20 17 Q26 19 25 24" fill="none" stroke="#C8102E" stroke-width="5" stroke-linecap="round"/><path d="M30 8 L37 4 L34 10 L39 10 L32 14" fill="#C8102E"/><circle cx="13" cy="24" r="1.8" fill="#FFF3D6"/><circle cx="13.5" cy="23.5" r=".8" fill="#8E0C22"/></svg>`,
+  /* 0 pez clásico (dorado) */
+  `<svg class="fish" viewBox="0 0 44 44"><defs><linearGradient id="gA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E03A4E"/><stop offset="1" stop-color="#C8102E"/></linearGradient></defs>
+    <path d="M6 22 Q15 9 29 13 Q38 16.5 39.5 22 Q38 27.5 29 31 Q15 35 6 22 Z" fill="url(#gA)" stroke="#8E0C22" stroke-width="1.8"/>
+    <path d="M6 22 L0 14 L2.5 22 L0 30 Z" fill="#C8102E" stroke="#8E0C22" stroke-width="1.6"/>
+    <path d="M10 27 Q22 33 33 25 Q25 30 12 29 Z" fill="#FFF3D6" opacity=".85"/>
+    <path d="M18 12 L23 8 L27 12" fill="#E8A020" stroke="#8E0C22" stroke-width="1.2"/>
+    <circle cx="32" cy="19" r="2.8" fill="#FFF3D6" stroke="#8E0C22" stroke-width=".8"/>
+    <circle cx="33" cy="18.4" r="1.2" fill="#8E0C22"/>
+    <path d="M17 17 Q21.5 22 17 27 M22 15.5 Q27 22 22 28.5" stroke="#FFF3D6" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+    <ellipse cx="20" cy="13.5" rx="6" ry="1.6" fill="#fff" opacity=".35" transform="rotate(-8 20 13.5)"/></svg>`,
+  /* 1 pez largo */
+  `<svg class="fish" viewBox="0 0 44 44"><defs><linearGradient id="gB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A3132B"/><stop offset="1" stop-color="#8E0C22"/></linearGradient></defs>
+    <path d="M4 22 Q16 12 31 15.5 Q39.5 18.5 40.5 22 Q39.5 25.5 31 28.5 Q16 32 4 22 Z" fill="url(#gB)" stroke="#5E0818" stroke-width="1.8"/>
+    <path d="M4 22 L0 16.5 L2 22 L0 27.5 Z" fill="#6E0A1C"/>
+    <path d="M9 27 Q22 31.5 34 25.5 Q24 30 11 29 Z" fill="#FFF3D6" opacity=".8"/>
+    <circle cx="33.5" cy="19.5" r="2.5" fill="#FFF3D6"/><circle cx="34.3" cy="19" r="1.1" fill="#5E0818"/>
+    <path d="M12 19 L24 19 M12 25 L26 25" stroke="#FFF3D6" stroke-width="1.7" stroke-linecap="round" opacity=".9"/>
+    <ellipse cx="22" cy="14.8" rx="7" ry="1.5" fill="#fff" opacity=".3" transform="rotate(-4 22 14.8)"/></svg>`,
+  /* 2 globo / puffer */
+  `<svg class="fish" viewBox="0 0 44 44"><defs><radialGradient id="gC" cx="40%" cy="35%"><stop offset="0" stop-color="#E8576A"/><stop offset="1" stop-color="#C8102E"/></radialGradient></defs>
+    <circle cx="22" cy="24" r="13" fill="url(#gC)" stroke="#8E0C22" stroke-width="1.8"/>
+    <path d="M22 7.5 L22 11.5 M30.5 10.5 L28.7 13.7 M36 17.5 L32.8 19.8 M37 27 L33.3 25.8 M31 36 L28.5 32.6 M15 36 L17.5 32.6 M8 30 L11.5 27.3 M6.5 20 L10.5 20.5 M12 11 L14.5 14.2" stroke="#C8102E" stroke-width="2.6" stroke-linecap="round"/>
+    <circle cx="17" cy="21" r="2.3" fill="#FFF3D6"/><circle cx="27" cy="21" r="2.3" fill="#FFF3D6"/>
+    <circle cx="17.6" cy="20.5" r="1" fill="#8E0C22"/><circle cx="27.6" cy="20.5" r="1" fill="#8E0C22"/>
+    <circle cx="22" cy="28" r="1.6" fill="#FFF3D6"/><circle cx="16" cy="29.5" r="1.2" fill="#FFF3D6"/><circle cx="28" cy="29.5" r="1.2" fill="#FFF3D6"/>
+    <ellipse cx="17" cy="14" rx="4.5" ry="2" fill="#fff" opacity=".4" transform="rotate(-20 17 14)"/></svg>`,
+  /* 3 tiburón */
+  `<svg class="fish" viewBox="0 0 44 44"><defs><linearGradient id="gD" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C8102E"/><stop offset="1" stop-color="#8E0C22"/></linearGradient></defs>
+    <path d="M4 26 Q14 10.5 31 14.5 Q39.5 17.5 40.5 22 Q38.5 23.5 33.5 24.5 Q36 27.5 31 30 Q16 35 4 26 Z" fill="url(#gD)" stroke="#5E0818" stroke-width="1.8"/>
+    <path d="M17 13.5 L21.5 4.5 L26 13.5 Z" fill="#C8102E" stroke="#5E0818" stroke-width="1.5"/>
+    <path d="M4 26 L0 20.5 L2.5 27 L0 32 Z" fill="#6E0A1C"/>
+    <path d="M12 30 Q24 34 33.5 26.5 Q26 32 13 32 Z" fill="#FFF3D6" opacity=".8"/>
+    <circle cx="33.5" cy="19.5" r="2.4" fill="#FFF3D6"/><circle cx="34.2" cy="19" r="1.1" fill="#5E0818"/>
+    <path d="M29.5 25.5 L32.5 24.3 M27 27 L30 26" stroke="#FFF3D6" stroke-width="1.7" stroke-linecap="round"/>
+    <ellipse cx="24" cy="13" rx="6" ry="1.5" fill="#fff" opacity=".3" transform="rotate(-10 24 13)"/></svg>`,
+  /* 4 pulpo */
+  `<svg class="fish" viewBox="0 0 44 44"><defs><radialGradient id="gE" cx="45%" cy="30%"><stop offset="0" stop-color="#E03A4E"/><stop offset="1" stop-color="#C8102E"/></radialGradient></defs>
+    <path d="M13 24 Q12 8 22 8 Q32 8 31 24 L31 26 Q27 22 22 26 Q17 22 13 26 Z" fill="url(#gE)" stroke="#8E0C22" stroke-width="1.8"/>
+    <path d="M13 26 Q8 32 12 36 Q14.5 32.5 15.5 28 M22 28 Q21 34 22 38 Q24 34 24 28 M31 26 Q36 32 32 36 Q29.5 32.5 28.5 28" stroke="#C8102E" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+    <ellipse cx="17.5" cy="19" rx="2.6" ry="3" fill="#FFF3D6"/><ellipse cx="26.5" cy="19" rx="2.6" ry="3" fill="#FFF3D6"/>
+    <circle cx="18.2" cy="18.5" r="1.1" fill="#8E0C22"/><circle cx="27.2" cy="18.5" r="1.1" fill="#8E0C22"/>
+    <path d="M18 24.5 Q22 26.5 26 24.5" stroke="#FFF3D6" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <ellipse cx="17" cy="12" rx="4" ry="1.8" fill="#fff" opacity=".35" transform="rotate(-15 17 12)"/></svg>`,
+  /* 5 camarón */
+  `<svg class="fish" viewBox="0 0 44 44"><defs><linearGradient id="gF" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8576A"/><stop offset="1" stop-color="#C8102E"/></linearGradient></defs>
+    <path d="M32 8 Q40 17 32 28 Q23 38 12 32 Q5 27 10 20 Q15 14 22 16 Q29 18.5 27 25" fill="none" stroke="url(#gF)" stroke-width="6.5" stroke-linecap="round"/>
+    <path d="M32 8 L40 3 L37 10 L42 10 L34 14" fill="#C8102E" stroke="#8E0C22" stroke-width="1.2"/>
+    <path d="M13 21.5 L17 23.5 M14.5 18.5 L18 21" stroke="#FFF3D6" stroke-width="1.4" stroke-linecap="round"/>
+    <circle cx="13" cy="26" r="2.2" fill="#FFF3D6"/><circle cx="13.7" cy="25.4" r="1" fill="#8E0C22"/>
+    <path d="M10 30 Q9 34 13 35" stroke="#E8A020" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`,
 ];
 let gradId=0;
 function bombSvg(){
   const id='rb'+(gradId++);
-  return `<svg class="fish" viewBox="0 0 40 40"><defs><conicGradient/></defs>
-    <defs><radialGradient id="${id}" cx="50%" cy="45%"><stop offset="0%" stop-color="#FFF3D6"/><stop offset="45%" stop-color="#E8A020"/><stop offset="80%" stop-color="#C8102E"/><stop offset="100%" stop-color="#8E0C22"/></radialGradient></defs>
-    <circle cx="20" cy="20" r="13" fill="url(#${id})" stroke="#8E0C22" stroke-width="2"/>
-    <path d="M20 9 Q23 15 20 20 Q17 15 20 9 M31 20 Q26 23 20 20 Q26 17 31 20 M20 31 Q17 25 20 20 Q23 25 20 31 M9 20 Q14 17 20 20 Q14 23 9 20" fill="rgba(255,243,214,.5)"/>
-    <path d="M20 4 L21.5 8 L20 7 L18.5 8 Z M34 20 L38 21.5 L37 20 L38 18.5 Z M20 36 L18.5 32 L20 33 L21.5 32 Z M6 20 L2 18.5 L3 20 L2 21.5 Z" fill="#FFF3D6"/></svg>`;
+  return `<svg class="fish" viewBox="0 0 44 44">
+    <defs><radialGradient id="${id}" cx="50%" cy="42%"><stop offset="0%" stop-color="#FFF3D6"/><stop offset="40%" stop-color="#E8A020"/><stop offset="75%" stop-color="#C8102E"/><stop offset="100%" stop-color="#8E0C22"/></radialGradient></defs>
+    <circle cx="22" cy="22" r="15" fill="url(#${id})" stroke="#8E0C22" stroke-width="2.2"/>
+    <path d="M22 9 Q25.5 15.5 22 22 Q18.5 15.5 22 9 M35 22 Q28.5 25.5 22 22 Q28.5 18.5 35 22 M22 35 Q18.5 28.5 22 22 Q25.5 28.5 22 35 M9 22 Q15.5 18.5 22 22 Q15.5 25.5 9 22" fill="rgba(255,243,214,.55)"/>
+    <circle cx="17" cy="17" r="2.4" fill="#FFF3D6"/><circle cx="27" cy="17" r="2.4" fill="#FFF3D6"/>
+    <path d="M22 2.5 L23.6 7 L22 5.8 L20.4 7 Z M39 22 L43 23.6 L41.5 22 L43 20.4 Z M22 41.5 L20.4 37 L22 38.2 L23.6 37 Z M5 22 L1 20.4 L2.5 22 L1 23.6 Z" fill="#FFF3D6"/></svg>`;
 }
-const PCOLORS=['#C8102E','#8E0C22','#E8A020','#FFF3D6','#C8102E','#8E0C22'];
+const PCOLORS=['#C8102E','#8E0C22','#E8A020','#FFF3D6','#C8102E','#E8576A'];
 let grid=[], sel=null, score=0, moves=25, level=1, target=500, busy=false, cell=44;
 const board=document.getElementById('board');
 const NCOLORS=()=>level<3?5:6;
@@ -257,7 +320,7 @@ const sfx={
 };
 
 function size(){const w=Math.min(innerWidth-20,500),h=innerHeight*.6;
-  cell=Math.floor(Math.min((w-24-(COLS-1)*6)/COLS,(h-24-(ROWS-1)*6)/ROWS));
+  cell=Math.floor(Math.min((w-28-(COLS-1)*6)/COLS,(h-28-(ROWS-1)*6)/ROWS));
   board.style.gridTemplateColumns=`repeat(${COLS},${cell}px)`;}
 addEventListener('resize',()=>{size();render()});
 
@@ -284,9 +347,9 @@ function hud(){
 function fishHtml(v){
   if(v.s==='b')return bombSvg();
   let extra='';
-  if(v.s==='h')extra=`<svg class="fish" viewBox="0 0 40 40" style="position:absolute;inset:10%"><path d="M4 12 H36 M4 20 H36 M4 28 H36" stroke="#FFF3D6" stroke-width="3" stroke-dasharray="3 3"/></svg>`;
-  if(v.s==='v')extra=`<svg class="fish" viewBox="0 0 40 40" style="position:absolute;inset:10%"><path d="M12 4 V36 M20 4 V36 M28 4 V36" stroke="#FFF3D6" stroke-width="3" stroke-dasharray="3 3"/></svg>`;
-  if(v.s==='w')extra=`<svg class="fish" viewBox="0 0 40 40" style="position:absolute;inset:5%"><circle cx="20" cy="20" r="16" fill="none" stroke="#E8A020" stroke-width="2.5" stroke-dasharray="4 3"/></svg>`;
+  if(v.s==='h')extra=`<svg class="fish" viewBox="0 0 44 44" style="position:absolute;inset:12%"><path d="M5 13 H39 M5 22 H39 M5 31 H39" stroke="#FFF3D6" stroke-width="3.2" stroke-dasharray="3.5 3"/></svg>`;
+  if(v.s==='v')extra=`<svg class="fish" viewBox="0 0 44 44" style="position:absolute;inset:12%"><path d="M13 5 V39 M22 5 V39 M31 5 V39" stroke="#FFF3D6" stroke-width="3.2" stroke-dasharray="3.5 3"/></svg>`;
+  if(v.s==='w')extra=`<svg class="fish" viewBox="0 0 44 44" style="position:absolute;inset:6%"><circle cx="22" cy="22" r="17" fill="none" stroke="#E8A020" stroke-width="2.6" stroke-dasharray="4.5 3.5"/></svg>`;
   return FISH[v.t]+extra;
 }
 function render(){
@@ -330,17 +393,13 @@ function trySwap(a,b){
   if(busy)return;
   const[r1,c1]=a,[r2,c2]=b;
   const va=grid[r1][c1],vb=grid[r2][c2];
-  /* special swap: color bomb or two specials activate directly */
   if(va.s||vb.s){
     moves--;sel=null;sfx.swap();pawSwipe(a,b);
     const rem=new Set([r1+','+c1,r2+','+c2]);
-    if(va.s==='b'){const t=vb.s?-1:vb.t;
-      for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)
-        if(grid[r][c].t===(t<0?vb.t:t))rem.add(r+','+c);}
-    if(vb.s==='b'){const t=va.s?-1:va.t;
-      for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)
-        if(grid[r][c].t===(t<0?va.t:t))rem.add(r+','+c);}
-    grid[r1][c1]=mk(va.t,va.s);grid[r2][c2]=mk(vb.t,vb.s);
+    if(va.s==='b'){for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)
+        if(grid[r][c].t===vb.t)rem.add(r+','+c);}
+    if(vb.s==='b'){for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)
+        if(grid[r][c].t===va.t)rem.add(r+','+c);}
     render();resolve(rem,null);return;
   }
   [grid[r1][c1],grid[r2][c2]]=[grid[r2][c2],grid[r1][c1]];
@@ -355,13 +414,12 @@ function trySwap(a,b){
   sfx.swap();moves--;
   pawSwipe(a,b);
   render();
-  resolve(m.cells,m.creates,[r2,c2]);
+  resolve(m.cells,m.creates);
 }
 
-/* returns {cells:Set, creates:[{r,c,s}]} — creates kept as specials instead of removed */
 function findMatches(){
   const cells=new Set(), creates=[];
-  const runs=[]; // {cells:[keys], dir}
+  const runs=[];
   for(let r=0;r<ROWS;r++){let run=[r+',0'];
     for(let c=1;c<=COLS;c++){
       if(c<COLS&&grid[r][c]&&grid[r][c-1]&&grid[r][c].t===grid[r][c-1].t)run.push(r+','+c);
@@ -373,12 +431,10 @@ function findMatches(){
   const inRun={};
   for(const run of runs){
     for(const k of run.cells){cells.add(k);inRun[k]=(inRun[k]||[]).concat(run.dir);}
-    /* pick creation cell */
     let spot=run.cells[Math.floor(run.cells.length/2)];
     if(run.cells.length>=5)creates.push({at:spot,s:'b'});
     else if(run.cells.length===4)creates.push({at:spot,s:run.dir==='h'?'h':'v'});
   }
-  /* L/T: cell in both an h and v run -> wrapped bomb */
   for(const k of cells){
     const d=inRun[k];
     if(d&&d.includes('h')&&d.includes('v'))creates.push({at:k,s:'w'});
@@ -392,9 +448,9 @@ function pawSwipe(a,b){
   const paw=document.getElementById('paw');
   const ra=board.children[a[0]*COLS+a[1]].getBoundingClientRect();
   const rb=board.children[b[0]*COLS+b[1]].getBoundingClientRect();
-  paw.style.left=(ra.left-30)+'px';paw.style.top=(ra.top-35)+'px';
-  paw.style.setProperty('--dx',(rb.left-ra.left+60)+'px');
-  paw.style.setProperty('--dy',(rb.top-ra.top+60)+'px');
+  paw.style.left=(ra.left-35)+'px';paw.style.top=(ra.top-40)+'px';
+  paw.style.setProperty('--dx',(rb.left-ra.left+70)+'px');
+  paw.style.setProperty('--dy',(rb.top-ra.top+70)+'px');
   paw.classList.remove('go');void paw.offsetWidth;paw.classList.add('go');
 }
 function beam(r,c,s){
@@ -440,7 +496,6 @@ function particles(x,y,color,n=10){
 }
 function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
 
-/* expand removal set through specials until fixpoint */
 function expand(rem,creates){
   const keep=new Set((creates||[]).map(x=>x.at));
   let changed=true;
@@ -476,7 +531,7 @@ function expand(rem,creates){
   return rem;
 }
 
-async function resolve(firstCells,creates,swapTarget){
+async function resolve(firstCells,creates){
   busy=true;
   let m=firstCells,cr=creates||[],combo=0;
   while(m.size){
@@ -491,7 +546,6 @@ async function resolve(firstCells,creates,swapTarget){
       document.body.classList.add('shake');setTimeout(()=>document.body.classList.remove('shake'),350);}
     else if(combo===1&&cr.length){comboBanner('¡PEZ ESPECIAL!');sfx.special();}
     else sfx.pop();
-    /* where to keep the new special */
     const keepAt={};
     for(const x of cr)keepAt[x.at]=x.s;
     for(const k of m){
@@ -508,13 +562,11 @@ async function resolve(firstCells,creates,swapTarget){
     }
     await sleep(330);
     for(const k of m){const[r,c]=k.split(',').map(Number);grid[r][c]=null;}
-    /* create specials — prefer the swap target if it was in the match */
     for(const x of cr){
       const[r,c]=x.at.split(',').map(Number);
       if(grid[r][c]===null)grid[r][c]=mk(Math.floor(Math.random()*NCOLORS()),x.s);
     }
     cr=[];
-    /* gravity */
     for(let c=0;c<COLS;c++){let w=ROWS-1;
       for(let r=ROWS-1;r>=0;r--)if(grid[r][c]!=null){grid[w][c]=grid[r][c];w--;}
       for(let r=w;r>=0;r--)grid[r][c]=rnd();}
@@ -529,7 +581,6 @@ async function resolve(firstCells,creates,swapTarget){
   else showHint();
 }
 
-/* Sugar Crush: leftover moves become striped fish sweeping the board */
 async function sugarCrush(){
   busy=true;
   comboBanner('¡SUGAR CRUSH!');
