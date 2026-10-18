@@ -67,12 +67,12 @@
   /* ---------- board ---------- */
   #stage{flex:1;width:100%;display:flex;align-items:center;justify-content:center;z-index:2;position:relative}
   #board{
-    display:grid;gap:5px;padding:12px;border-radius:30px;touch-action:none;position:relative;
+    display:grid;gap:4px;padding:6px;border-radius:22px;touch-action:none;position:relative;
     background:linear-gradient(180deg,rgba(18,70,140,.88),rgba(12,50,110,.92));
-    border:9px solid #6FD4FF;
-    box-shadow:0 0 0 3px #2E9BE6,0 0 0 6px rgba(200,245,255,.9),0 16px 34px rgba(0,30,80,.55),
+    border:6px solid #6FD4FF;
+    box-shadow:0 0 0 2px #2E9BE6,0 0 0 4px rgba(200,245,255,.9),0 16px 34px rgba(0,30,80,.55),
       inset 0 0 0 3px rgba(255,255,255,.35),inset 0 6px 14px rgba(0,0,0,.45)}
-  #board::before{content:"";position:absolute;inset:-14px;border-radius:38px;pointer-events:none;
+  #board::before{content:"";position:absolute;inset:-10px;border-radius:28px;pointer-events:none;
     background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,0) 18%);
     -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;padding:8px}
   .jb{position:absolute;border-radius:50%;pointer-events:none;z-index:4;
@@ -230,8 +230,8 @@ const sfx={
   lose(){tone(300,.5,'sine',.14,-180)},
 };
 
-function size(){const w=Math.min(innerWidth-20,500),h=innerHeight*.58;
-  cell=Math.floor(Math.min((w-42-(COLS-1)*5)/COLS,(h-42-(ROWS-1)*5)/ROWS));
+function size(){const w=Math.min(innerWidth-8,600),h=innerHeight*.64;
+  cell=Math.floor(Math.min((w-24-(COLS-1)*4)/COLS,(h-24-(ROWS-1)*4)/ROWS));
   board.style.gridTemplateColumns=`repeat(${COLS},${cell}px)`;}
 addEventListener('resize',()=>{size();render();jelly()});
 function jelly(){
@@ -320,7 +320,7 @@ function trySwap(a,b){
         if(grid[r][c].t===vb.t)rem.add(r+','+c);}
     if(vb.s==='b'){for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)
         if(grid[r][c].t===va.t)rem.add(r+','+c);}
-    render();resolve(rem,null);return;
+    render();resolve(rem,null,new Set([r1+','+c1,r2+','+c2]));return;
   }
   [grid[r1][c1],grid[r2][c2]]=[grid[r2][c2],grid[r1][c1]];
   sel=null;
@@ -334,7 +334,7 @@ function trySwap(a,b){
   sfx.swap();moves--;
   pawSwipe(a,b);
   render();
-  resolve(m.cells,m.creates);
+  resolve(m.cells,m.creates,new Set(m.cells));
 }
 
 function findMatches(){
@@ -417,47 +417,35 @@ function particles(x,y,color,n=10){
 }
 function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
 
-function expand(rem,creates){
+function expand(rem,creates,trigger){
   const keep=new Set((creates||[]).map(x=>x.at));
-  let changed=true;
-  while(changed){changed=false;
-    for(const k of [...rem]){
-      if(keep.has(k))continue;
-      const[r,c]=k.split(',').map(Number);
-      const v=grid[r]&&grid[r][c];
-      if(!v||!v.s)continue;
-      if(v.s==='h'||v.s==='v'){
-        beam(r,c,v.s);sfx.beam();
-        for(let i=0;i<(v.s==='h'?COLS:ROWS);i++){
-          const kk=v.s==='h'?r+','+i:i+','+c;
-          if(!rem.has(kk)){rem.add(kk);changed=true;}
-        }
-      }else if(v.s==='w'){
-        for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
-          const rr=r+dr,cc=c+dc;
-          if(rr>=0&&rr<ROWS&&cc>=0&&cc<COLS){
-            const kk=rr+','+cc;
-            if(!rem.has(kk)){rem.add(kk);changed=true;}
-          }}
-      }else if(v.s==='b'){
-        const t=v.t;
-        for(let rr=0;rr<ROWS;rr++)for(let cc=0;cc<COLS;cc++){
-          if(grid[rr][cc]&&grid[rr][cc].t===t){
-            const kk=rr+','+cc;
-            if(!rem.has(kk)){rem.add(kk);changed=true;}
-          }}
-      }
+  const add=k=>rem.add(k);
+  for(const k of [...trigger]){
+    if(keep.has(k)||!rem.has(k))continue;
+    const[r,c]=k.split(',').map(Number);
+    const v=grid[r]&&grid[r][c];
+    if(!v||!v.s)continue;
+    if(v.s==='h'||v.s==='v'){
+      beam(r,c,v.s);sfx.beam();
+      for(let i=0;i<(v.s==='h'?COLS:ROWS);i++)add(v.s==='h'?r+','+i:i+','+c);
+    }else if(v.s==='w'){
+      for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
+        const rr=r+dr,cc=c+dc;
+        if(rr>=0&&rr<ROWS&&cc>=0&&cc<COLS)add(rr+','+cc);}
+    }else if(v.s==='b'){
+      for(let rr=0;rr<ROWS;rr++)for(let cc=0;cc<COLS;cc++)
+        if(grid[rr][cc]&&grid[rr][cc].t===v.t)add(rr+','+cc);
     }
   }
   return rem;
 }
 
-async function resolve(firstCells,creates){
+async function resolve(firstCells,creates,trigger){
   busy=true;
   let m=firstCells,cr=creates||[],combo=0;
   while(m.size){
     combo++;
-    m=expand(m,cr);
+    if(combo===1&&trigger)m=expand(m,cr,trigger);
     const pts=m.size*10*combo;
     score+=pts;
     const first=[...m][0].split(',').map(Number);
@@ -502,36 +490,10 @@ async function resolve(firstCells,creates){
 
 async function sugarCrush(){
   busy=true;
-  comboBanner('¡SUGAR CRUSH!');
-  sfx.special();
-  await sleep(600);
-  while(moves>0){
-    moves--;
-    const r=Math.floor(Math.random()*ROWS), c=Math.floor(Math.random()*COLS);
-    grid[r][c]=mk(Math.floor(Math.random()*NCOLORS()),Math.random()<.5?'h':'v');
-    render();
-    const el=board.children[r*COLS+c];
-    el&&el.classList.add('born');
-    sfx.swap();
-    await sleep(160);
-    let m=new Set([r+','+c]);
-    m=expand(m,[]);
-    score+=m.size*15;
-    for(const k of m){
-      const[rr,cc]=k.split(',').map(Number);
-      const el=board.children[rr*COLS+cc];
-      if(el){const rc=el.getBoundingClientRect();
-        particles(rc.left+rc.width/2,rc.top+rc.height/2,'#fff',6);
-        el.classList.add('matched');}
-    }
-    await sleep(260);
-    for(const k of m){const[rr,cc]=k.split(',').map(Number);grid[rr][cc]=null;}
-    for(let c=0;c<COLS;c++){let w=ROWS-1;
-      for(let r2=ROWS-1;r2>=0;r2--)if(grid[r2][c]!=null){grid[w][c]=grid[r2][c];w--;}
-      for(let r2=w;r2>=0;r2--)grid[r2][c]=rnd();}
-    render();
-    await sleep(200);
-  }
+  const bonus=moves*50;
+  if(bonus){score+=bonus;comboBanner(`¡BONUS +${bonus}!`);sfx.special();}
+  moves=0;hud();
+  await sleep(bonus?1000:200);
   busy=false;
   end(true);
 }
