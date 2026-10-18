@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0a2a4a">
+<title>Fishy Crush 🐱🐟</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { height:100%; overflow:hidden; }
+  body {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    background: radial-gradient(120% 100% at 50% 0%, #12618f 0%, #0a2a4a 55%, #041a30 100%);
+    color:#fff; user-select:none; -webkit-user-select:none; touch-action:manipulation;
+    display:flex; flex-direction:column; align-items:center;
+  }
+  /* bubbles background */
+  .bubble { position:fixed; bottom:-60px; border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.5), rgba(255,255,255,.05));
+    animation:rise linear infinite; pointer-events:none; z-index:0; }
+  @keyframes rise { to { transform:translateY(-120vh) } }
+
+  header { z-index:2; width:100%; max-width:480px; padding:10px 14px 4px;
+    display:flex; align-items:center; justify-content:space-between; }
+  .cat { font-size:34px; filter:drop-shadow(0 2px 2px rgba(0,0,0,.4)); }
+  .cat.swiping { animation:swipe .35s ease; }
+  @keyframes swipe { 30%{ transform:rotate(-25deg) translateX(6px) } 60%{ transform:rotate(15deg) } }
+  h1 { font-size:22px; font-weight:800; letter-spacing:.5px;
+    text-shadow:0 2px 0 rgba(0,0,0,.3); color:#ffd166; }
+  .stats { display:flex; gap:8px; z-index:2; width:100%; max-width:480px; padding:4px 14px 8px; }
+  .stat { flex:1; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18);
+    border-radius:12px; padding:5px 8px; text-align:center; backdrop-filter:blur(4px); }
+  .stat b { display:block; font-size:17px; color:#ffd166; }
+  .stat span { font-size:10px; text-transform:uppercase; letter-spacing:.6px; opacity:.8; }
+
+  #board-wrap { position:relative; z-index:2; }
+  #board {
+    display:grid; gap:4px; padding:8px; border-radius:20px;
+    background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.2);
+    box-shadow:0 12px 30px rgba(0,0,0,.35), inset 0 0 40px rgba(0,0,0,.15);
+    touch-action:none;
+  }
+  .cell { position:relative; border-radius:12px; display:flex; align-items:center;
+    justify-content:center; cursor:pointer; transition:transform .15s;
+    background:linear-gradient(160deg, rgba(255,255,255,.16), rgba(255,255,255,.05)); }
+  .cell.sel { transform:scale(1.12); box-shadow:0 0 0 3px #ffd166, 0 0 18px #ffd166; z-index:3; }
+  .fish { width:78%; height:78%; transition:transform .15s; }
+  .cell.hint { animation:hint 1s infinite; }
+  @keyframes hint { 50%{ transform:scale(.88); filter:brightness(1.5) } }
+  .cell.matched { animation:pop .3s forwards; }
+  @keyframes pop { 40%{ transform:scale(1.3) rotate(10deg) } 100%{ transform:scale(0) } }
+  .cell.dropping { transition:transform .22s cubic-bezier(.3,1.4,.5,1); }
+
+  /* claw scratch overlay */
+  .scratch { position:absolute; inset:0; pointer-events:none; z-index:5; }
+  .scratch::before, .scratch::after, .scratch .m {
+    content:""; position:absolute; left:15%; top:50%; width:70%; height:6%;
+    background:linear-gradient(90deg,transparent,#fff 20%,#fff 80%,transparent);
+    border-radius:4px; transform:rotate(-45deg); animation:claw .28s forwards; opacity:0; }
+  .scratch::after { animation-delay:.06s; top:62%; }
+  .scratch .m { animation-delay:.12s; top:38%; }
+  @keyframes claw { 0%{opacity:0; transform:rotate(-45deg) scaleX(.2)} 40%{opacity:1} 100%{opacity:0; transform:rotate(-45deg) scaleX(1.15)} }
+
+  /* paw that swipes across the board */
+  #paw { position:fixed; font-size:52px; z-index:50; pointer-events:none; opacity:0;
+    filter:drop-shadow(0 4px 6px rgba(0,0,0,.5)); }
+  #paw.go { animation:pawfly .45s ease-in-out forwards; }
+  @keyframes pawfly {
+    0%{ opacity:0; transform:translate(0,0) rotate(-30deg) scale(.6) }
+    15%{ opacity:1 }
+    80%{ opacity:1 }
+    100%{ opacity:0; transform:translate(var(--dx),var(--dy)) rotate(15deg) scale(1.1) }
+  }
+
+  .float { position:fixed; z-index:40; font-weight:800; font-size:20px; color:#ffd166;
+    text-shadow:0 2px 4px rgba(0,0,0,.6); pointer-events:none; animation:floatup 1s forwards; }
+  @keyframes floatup { to { transform:translateY(-60px); opacity:0 } }
+
+  #msg { position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+    z-index:60; background:rgba(4,20,35,.75); backdrop-filter:blur(6px); }
+  #msg .card { background:linear-gradient(160deg,#13547a,#0a2a4a); border:1px solid rgba(255,255,255,.25);
+    border-radius:24px; padding:28px 30px; text-align:center; max-width:320px;
+    box-shadow:0 20px 50px rgba(0,0,0,.5); }
+  #msg h2 { color:#ffd166; margin-bottom:6px; }
+  #msg p { opacity:.85; font-size:14px; margin-bottom:16px; }
+  #msg button { background:#ffd166; border:none; color:#0a2a4a; font-weight:800;
+    font-size:16px; padding:12px 28px; border-radius:14px; cursor:pointer; }
+  #msg button:active { transform:scale(.95) }
+  .shake { animation:shake .3s }
+  @keyframes shake { 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+</style>
+</head>
+<body>
+<header>
+  <div class="cat" id="cat">🐱</div>
+  <h1>FISHY CRUSH</h1>
+  <div class="cat">🐾</div>
+</header>
+<div class="stats">
+  <div class="stat"><b id="score">0</b><span>Puntos</span></div>
+  <div class="stat"><b id="moves">25</b><span>Movimientos</span></div>
+  <div class="stat"><b id="level">1</b><span>Nivel</span></div>
+  <div class="stat"><b id="target">500</b><span>Meta</span></div>
+</div>
+<div id="board-wrap"><div id="board"></div></div>
+<div id="paw">🐾</div>
+<div id="msg"><div class="card">
+  <h2 id="msg-title">🐱 Fishy Crush</h2>
+  <p id="msg-text">Ayudá al gato a pescar: intercambiá pescaditos para juntar 3 o más iguales. ¡La garra hace el resto!</p>
+  <button id="msg-btn">¡A pescar!</button>
+</div></div>
+
+<script>
+const COLS=8, ROWS=8;
+const FISH=[
+  {emoji:'🐠', c:'#ff9f43'}, {emoji:'🐟', c:'#4fb3ff'}, {emoji:'🐡', c:'#ffd166'},
+  {emoji:'🦈', c:'#9aa5b1'}, {emoji:'🐙', c:'#ff6b9d'}, {emoji:'🦐', c:'#ff7b54'},
+];
+let grid=[], sel=null, score=0, moves=25, level=1, target=500, busy=false, cell=44;
+const board=document.getElementById('board');
+
+// bubbles
+for(let i=0;i<14;i++){ const b=document.createElement('div'); b.className='bubble';
+  const s=8+Math.random()*28; b.style.width=b.style.height=s+'px';
+  b.style.left=Math.random()*100+'vw';
+  b.style.animationDuration=(6+Math.random()*10)+'s';
+  b.style.animationDelay=-Math.random()*10+'s'; document.body.appendChild(b); }
+
+function size(){ const w=Math.min(innerWidth-24,460); cell=Math.floor((w-16-(COLS-1)*4)/COLS);
+  board.style.gridTemplateColumns=`repeat(${COLS},${cell}px)`; }
+addEventListener('resize',()=>{size();render()});
+
+function fishSvg(i){ const f=FISH[i];
+  return `<svg class="fish" viewBox="0 0 40 40"><text x="20" y="30" font-size="30" text-anchor="middle">${f.emoji}</text></svg>`; }
+
+function rnd(){ return Math.floor(Math.random()*FISH.length) }
+function init(){
+  grid=[];
+  for(let r=0;r<ROWS;r++){ grid[r]=[];
+    for(let c=0;c<COLS;c++){ let v; do{ v=rnd() }while(
+      (c>=2&&grid[r][c-1]===v&&grid[r][c-2]===v)||
+      (r>=2&&grid[r-1][c]===v&&grid[r-2][c]===v)); grid[r][c]=v; } }
+}
+function render(){
+  board.innerHTML='';
+  for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
+    const d=document.createElement('div'); d.className='cell';
+    d.dataset.r=r; d.dataset.c=c; d.style.width=d.style.height=cell+'px';
+    if(grid[r][c]!=null) d.innerHTML=fishSvg(grid[r][c]);
+    if(sel&&sel[0]===r&&sel[1]===c) d.classList.add('sel');
+    d.addEventListener('pointerdown',tap);
+    board.appendChild(d);
+  }
+  document.getElementById('score').textContent=score;
+  document.getElementById('moves').textContent=moves;
+  document.getElementById('level').textContent=level;
+  document.getElementById('target').textContent=target;
+}
+let down=null;
+board.addEventListener('pointerdown',e=>{ const t=e.target.closest('.cell');
+  down=t?[+t.dataset.r,+t.dataset.c]:null; });
+board.addEventListener('pointerup',e=>{
+  if(!down) return; const t=e.target.closest('.cell');
+  if(t){ tap.call(t,e); } down=null; });
+// swipe support
+let sx=0,sy=0;
+board.addEventListener('touchstart',e=>{ sx=e.touches[0].clientX; sy=e.touches[0].clientY },{passive:true});
+board.addEventListener('touchend',e=>{
+  if(!down) return;
+  const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+  if(Math.abs(dx)>20||Math.abs(dy)>20){
+    let [r,c]=down, tr=r, tc=c;
+    if(Math.abs(dx)>Math.abs(dy)) tc+=dx>0?1:-1; else tr+=dy>0?1:-1;
+    if(tr>=0&&tr<ROWS&&tc>=0&&tc<COLS){ sel=[r,c]; swap(sel,[tr,tc]); }
+    down=null;
+  }
+},{passive:true});
+
+function tap(e){
+  if(busy) return;
+  const r=+this.dataset.r, c=+this.dataset.c;
+  if(!sel){ sel=[r,c]; render(); return; }
+  if(sel[0]===r&&sel[1]===c){ sel=null; render(); return; }
+  const dr=Math.abs(sel[0]-r), dc=Math.abs(sel[1]-c);
+  if(dr+dc===1){ swap(sel,[r,c]); }
+  else { sel=[r,c]; render(); }
+}
+function swap(a,b){
+  const [r1,c1]=a,[r2,c2]=b;
+  [grid[r1][c1],grid[r2][c2]]=[grid[r2][c2],grid[r1][c1]];
+  sel=null;
+  const m=findMatches();
+  if(m.size===0){ // swap back
+    [grid[r1][c1],grid[r2][c2]]=[grid[r2][c2],grid[r1][c1]];
+    render(); board.classList.add('shake'); setTimeout(()=>board.classList.remove('shake'),300);
+    return;
+  }
+  moves--; render(); pawSwipe(a,b); resolve(m);
+}
+function findMatches(){
+  const m=new Set();
+  for(let r=0;r<ROWS;r++){ let run=1;
+    for(let c=1;c<=COLS;c++){
+      if(c<COLS&&grid[r][c]!=null&&grid[r][c]===grid[r][c-1]) run++;
+      else { if(run>=3) for(let k=c-run;k<c;k++) m.add(r+','+k); run=1; } } }
+  for(let c=0;c<COLS;c++){ let run=1;
+    for(let r=1;r<=ROWS;r++){
+      if(r<ROWS&&grid[r][c]!=null&&grid[r][c]===grid[r-1][c]) run++;
+      else { if(run>=3) for(let k=r-run;k<r;k++) m.add(k+','+c); run=1; } } }
+  return m;
+}
+function pawSwipe(a,b){
+  const cat=document.getElementById('cat'); cat.classList.add('swiping');
+  setTimeout(()=>cat.classList.remove('swiping'),400);
+  const paw=document.getElementById('paw');
+  const ra=board.children[a[0]*COLS+a[1]].getBoundingClientRect();
+  const rb=board.children[b[0]*COLS+b[1]].getBoundingClientRect();
+  paw.style.left=ra.left+'px'; paw.style.top=ra.top+'px';
+  paw.style.setProperty('--dx',(rb.left-ra.left+10)+'px');
+  paw.style.setProperty('--dy',(rb.top-ra.top+10)+'px');
+  paw.classList.remove('go'); void paw.offsetWidth; paw.classList.add('go');
+}
+function floatText(txt,x,y){ const f=document.createElement('div'); f.className='float';
+  f.textContent=txt; f.style.left=x+'px'; f.style.top=y+'px';
+  document.body.appendChild(f); setTimeout(()=>f.remove(),1000); }
+async function resolve(first){
+  busy=true;
+  let m=first, combo=0;
+  while(m.size){
+    combo++;
+    const pts=m.size*10*combo;
+    score+=pts;
+    const any=[...m][0].split(',');
+    const el=board.children[+any[0]*COLS+ +any[1]];
+    if(el){ const rc=el.getBoundingClientRect();
+      floatText(combo>1?`¡Combo x${combo}! +${pts}`:`+${pts}`,rc.left,rc.top-10); }
+    // scratch overlay + pop
+    for(const k of m){ const [r,c]=k.split(',').map(Number);
+      const el=board.children[r*COLS+c];
+      if(el){ const s=document.createElement('div'); s.className='scratch';
+        s.innerHTML='<div class="m"></div>'; el.appendChild(s);
+        setTimeout(()=>el.classList.add('matched'),120); } }
+    await sleep(300);
+    for(const k of m){ const [r,c]=k.split(',').map(Number); grid[r][c]=null; }
+    // gravity
+    for(let c=0;c<COLS;c++){ let w=ROWS-1;
+      for(let r=ROWS-1;r>=0;r--) if(grid[r][c]!=null){ grid[w][c]=grid[r][c]; w--; }
+      for(let r=w;r>=0;r--) grid[r][c]=rnd(); }
+    render();
+    for(const d of board.children) d.classList.add('dropping');
+    await sleep(240);
+    m=findMatches();
+  }
+  busy=false;
+  render();
+  if(score>=target){ end(true); }
+  else if(moves<=0){ end(false); }
+  else showHint();
+}
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)) }
+function showHint(){
+  for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
+    for(const [dr,dc] of [[0,1],[1,0]]){
+      const r2=r+dr,c2=c+dc; if(r2>=ROWS||c2>=COLS) continue;
+      [grid[r][c],grid[r2][c2]]=[grid[r2][c2],grid[r][c]];
+      const ok=findMatches().size>0;
+      [grid[r][c],grid[r2][c2]]=[grid[r2][c2],grid[r][c]];
+      if(ok){ const e1=board.children[r*COLS+c], e2=board.children[r2*COLS+c2];
+        e1&&e1.classList.add('hint'); e2&&e2.classList.add('hint'); return; }
+    }
+  }
+}
+function end(win){
+  const m=document.getElementById('msg');
+  document.getElementById('msg-title').textContent=win?'🎉 ¡Nivel superado!':'😿 Sin movimientos';
+  document.getElementById('msg-text').textContent=win?
+    `¡El gato cenó como un rey! Puntos: ${score}. Siguiente nivel: más puntos, mismos peces.`:
+    `Llegaste a ${score} puntos. El gato sigue con hambre…`;
+  document.getElementById('msg-btn').textContent=win?'Siguiente nivel':'Reintentar';
+  m.style.display='flex';
+  document.getElementById('msg-btn').onclick=()=>{
+    if(win){ level++; target=500*level; } else { level=1; target=500; score=0; }
+    moves=25; m.style.display='none'; init(); render();
+  };
+}
+document.getElementById('msg-btn').onclick=()=>{
+  document.getElementById('msg').style.display='none'; init(); render();
+};
+size(); init(); render();
+document.getElementById('msg').style.display='flex';
+</script>
+</body>
+</html>
