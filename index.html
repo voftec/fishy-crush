@@ -362,6 +362,87 @@ function findMatches(){
   return {cells,creates};
 }
 
+const VFX=(()=>{
+  const cv=document.createElement('canvas');
+  cv.style.cssText='position:fixed;inset:0;width:100vw;height:100vh;z-index:58;pointer-events:none';
+  document.body.appendChild(cv);
+  const gl=cv.getContext('webgl',{alpha:true,premultipliedAlpha:true,antialias:false});
+  if(!gl){cv.remove();return {ok:false};}
+  const VS=`attribute vec2 a;uniform vec2 R,C;uniform mediump vec2 H;uniform float A;varying vec2 v;
+  void main(){v=a;float c=cos(A),s=sin(A);vec2 p=a*H;p=vec2(c*p.x-s*p.y,s*p.x+c*p.y)+C;
+  gl_Position=vec4(p/R*2.-1.,0.,1.);}`;
+  const FS=`precision mediump float;varying vec2 v;uniform vec2 H;uniform float T,Y,S;uniform vec3 K;
+  vec2 slash(float off,float dl){
+    float rv=clamp((T-dl)/.26,0.,1.);rv=1.-pow(1.-rv,3.);
+    float hd=-1.+2.*rv;float x=v.x;
+    float tp=pow(max(1.-x*x,0.),.65);
+    float yc=off-.22*(1.-x*x);
+    float d=abs(v.y-yc)*H.y;float th=H.y*.1*tp+1.;
+    float vis=smoothstep(hd+.04,hd-.04,x);
+    float fade=1.-smoothstep(.4,1.,T);
+    float core=smoothstep(th,th*.25,d)*vis;
+    float glow=exp(-d/(th*1.4+2.))*vis*tp*.85;
+    float spark=exp(-length(vec2((x-hd)*H.x,d))/(H.y*.06))*(1.-rv)*2.5;
+    return vec2(core+spark,glow+spark*.6)*fade;}
+  void main(){
+    vec3 c=vec3(0.);float a=0.;
+    if(Y<.5){
+      vec2 s=slash(-.5,0.)+slash(0.,.06)+slash(.5,.12);
+      float em=smoothstep(1.,.75,abs(v.y))*smoothstep(1.,.9,abs(v.x));s*=em;
+      c=K*s.y*1.5+vec3(1.,.97,.9)*s.x;a=clamp(s.x+s.y*.45,0.,1.);
+    }else if(Y<1.5){
+      float L=length(v);if(L>1.)discard;float r=sqrt(T)*.92,w=.04+.12*(1.-T);
+      float rg=exp(-pow((L-r)/w,2.));float an=atan(v.y,v.x);
+      float rays=pow(max(0.,sin(an*9.+S*6.)*sin(an*5.-S*3.)),4.)*smoothstep(r+.1,0.,L)*(1.-T);
+      float fl=exp(-L*5.)*pow(1.-T,2.)*2.2;float f=1.-T;
+      c=K*(rg*1.6+rays*1.2)*f+vec3(1.)*(fl+rg*.6*f);a=clamp((rg+fl)*.5*f+rays*.2,0.,1.);
+    }else if(Y<2.5){
+      float d=abs(v.y)*H.y;float e=smoothstep(0.,.12,T)*(1.-smoothstep(.35,1.,T));
+      float fw=.6+.4*sin(v.x*24.-T*70.+S*9.);
+      float core=exp(-d/(2.+3.*fw));float glow=exp(-d/(H.y*.35))*.8;
+      float tip=smoothstep(1.,.8,abs(v.x));
+      c=(K*glow*1.5+vec3(1.)*core*1.3)*e*tip;a=clamp(core+glow*.3,0.,1.)*e*tip;
+    }else{
+      float an=T*1.6+S;vec2 p=mat2(cos(an),-sin(an),sin(an),cos(an))*v;
+      float g=smoothstep(0.,.15,T);vec2 q=abs(p)/max(g,.01);
+      float st=exp(-q.x*16.)*exp(-q.y*2.2)+exp(-q.y*16.)*exp(-q.x*2.2);
+      float L=length(v);float rg=exp(-pow((L-T*.95)/.05,2.))*.7;
+      float e=pow(1.-T,1.5);float core=exp(-L*7.)*e;
+      c=(K*(st*1.3+rg)+vec3(1.)*(st*.8+core))*e;a=clamp((st+core+rg*.5)*e*.5,0.,1.);
+    }
+    gl_FragColor=vec4(c,a*.55);}`;
+  function sh(t,s){const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);
+    if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(o);return o;}
+  let P;try{P=gl.createProgram();gl.attachShader(P,sh(gl.VERTEX_SHADER,VS));gl.attachShader(P,sh(gl.FRAGMENT_SHADER,FS));
+    gl.linkProgram(P);if(!gl.getProgramParameter(P,gl.LINK_STATUS))throw 0;}catch(e){cv.remove();return {ok:false};}
+  gl.useProgram(P);
+  const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+  const al=gl.getAttribLocation(P,'a');gl.enableVertexAttribArray(al);gl.vertexAttribPointer(al,2,gl.FLOAT,false,0,0);
+  const U={};['R','C','H','A','T','Y','S','K'].forEach(n=>U[n]=gl.getUniformLocation(P,n));
+  gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE);
+  let dpr=1;function rs(){dpr=Math.min(devicePixelRatio||1,2);cv.width=innerWidth*dpr;cv.height=innerHeight*dpr;
+    gl.viewport(0,0,cv.width,cv.height);}
+  rs();addEventListener('resize',rs);
+  const fx=[];let raf=0;
+  function loop(now){raf=0;gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.uniform2f(U.R,cv.width,cv.height);
+    for(let i=fx.length-1;i>=0;i--){const f=fx[i];const t=(now-f.t0)/f.dur;
+      if(t>=1){fx.splice(i,1);continue;}if(t<0)continue;
+      gl.uniform2f(U.C,f.x*dpr,(innerHeight-f.y)*dpr);gl.uniform2f(U.H,f.hx*dpr,f.hy*dpr);
+      gl.uniform1f(U.A,-f.ang);gl.uniform1f(U.T,t);gl.uniform1f(U.Y,f.ty);gl.uniform1f(U.S,f.seed);
+      gl.uniform3f(U.K,f.k[0],f.k[1],f.k[2]);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);}
+    if(fx.length)raf=requestAnimationFrame(loop);}
+  const hex=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255);
+  function add(o){o.t0=performance.now()+(o.delay||0);o.seed=Math.random()*6.28;o.k=typeof o.k==='string'?hex(o.k):o.k;
+    fx.push(o);if(!raf)raf=requestAnimationFrame(loop);}
+  return {ok:true,
+    claw:(x,y,ang,len,wid,k,dur=560,delay=0)=>add({ty:0,x,y,ang,hx:len/2,hy:wid/2,k,dur,delay}),
+    ring:(x,y,rad,k,dur=650,delay=0)=>add({ty:1,x,y,ang:0,hx:rad,hy:rad,k,dur,delay}),
+    beam:(x,y,ang,len,wid,k,dur=520)=>add({ty:2,x,y,ang,hx:len/2,hy:wid/2,k,dur}),
+    pop:(x,y,s,k,dur=480,delay=0)=>add({ty:3,x,y,ang:0,hx:s,hy:s,k,dur,delay})};
+})();
+const ctr=(r,c)=>{const e=board.children[r*COLS+c].getBoundingClientRect();return [e.left+e.width/2,e.top+e.height/2];};
 function pawSwipe(a,b){
   const cat=document.getElementById('cat');
   cat.classList.remove('swiping');void cat.offsetWidth;cat.classList.add('swiping');
@@ -372,8 +453,16 @@ function pawSwipe(a,b){
   paw.style.setProperty('--dx',(rb.left-ra.left+80)+'px');
   paw.style.setProperty('--dy',(rb.top-ra.top+80)+'px');
   paw.classList.remove('go');void paw.offsetWidth;paw.classList.add('go');
+  if(VFX.ok){const[x1,y1]=ctr(a[0],a[1]),[x2,y2]=ctr(b[0],b[1]);
+    const ang=Math.atan2(y2-y1,x2-x1)+(Math.random()<.5?.55:-.55);
+    VFX.claw((x1+x2)/2,(y1+y2)/2,ang,cell*3.6,cell*1.7,'#FF5FA2',600,90);
+    VFX.pop((x1+x2)/2,(y1+y2)/2,cell*1.1,'#FFD94D',450,120);}
 }
 function beam(r,c,s){
+  if(VFX.ok){const br=board.getBoundingClientRect(),[x,y]=ctr(r,c);
+    if(s==='h')VFX.beam(br.left+br.width/2,y,0,br.width*1.1,cell*1.6,'#FFC83D');
+    else VFX.beam(x,br.top+br.height/2,Math.PI/2,br.height*1.1,cell*1.6,'#6FE3FF');
+    VFX.pop(x,y,cell*1.4,'#FFFFFF');return;}
   const b=document.createElement('div');
   b.className='beam'+(s==='v'?' v':'');
   const br=board.getBoundingClientRect();
@@ -385,6 +474,8 @@ function beam(r,c,s){
   document.body.appendChild(b);setTimeout(()=>b.remove(),450);
 }
 function bigSlash(){
+  if(VFX.ok){const br=board.getBoundingClientRect();
+    VFX.claw(br.left+br.width/2,br.top+br.height/2,-.6+Math.random()*.3,br.width*1.25,br.width*.55,'#FF3D7F',700);return;}
   const s=document.getElementById('slash');
   const is=s.querySelectorAll('i');
   const y=board.getBoundingClientRect().top+board.offsetHeight/2;
@@ -429,10 +520,15 @@ function expand(rem,creates,trigger){
       beam(r,c,v.s);sfx.beam();
       for(let i=0;i<(v.s==='h'?COLS:ROWS);i++)add(v.s==='h'?r+','+i:i+','+c);
     }else if(v.s==='w'){
+      if(VFX.ok){const[x,y]=ctr(r,c);VFX.ring(x,y,cell*2.6,'#FF8A3D');VFX.pop(x,y,cell*1.8,'#FFE07A');}
+      sfx.special();
       for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
         const rr=r+dr,cc=c+dc;
         if(rr>=0&&rr<ROWS&&cc>=0&&cc<COLS)add(rr+','+cc);}
     }else if(v.s==='b'){
+      if(VFX.ok){const[x,y]=ctr(r,c),br=board.getBoundingClientRect();VFX.ring(x,y,br.width*.95,'#D27BFF',800);VFX.pop(x,y,cell*2.4,'#FFFFFF',600);
+        for(let rr=0;rr<ROWS;rr++)for(let cc=0;cc<COLS;cc++)if(grid[rr][cc]&&grid[rr][cc].t===v.t){const[px,py]=ctr(rr,cc);VFX.pop(px,py,cell*1.1,PCOLORS[v.t],480,120+Math.random()*200);}}
+      sfx.special();
       for(let rr=0;rr<ROWS;rr++)for(let cc=0;cc<COLS;cc++)
         if(grid[rr][cc]&&grid[rr][cc].t===v.t)add(rr+','+cc);
     }
@@ -462,8 +558,11 @@ async function resolve(firstCells,creates,trigger){
         const rc=el.getBoundingClientRect();
         const v=grid[r][c];
         particles(rc.left+rc.width/2,rc.top+rc.height/2,v?PCOLORS[v.t]:'#fff',v&&v.s?16:8);
-        const s=document.createElement('div');s.className='scratch';
-        s.innerHTML='<i></i><i></i><i></i>';el.appendChild(s);
+        if(VFX.ok){const cx=rc.left+rc.width/2,cy=rc.top+rc.height/2,col=v?PCOLORS[v.t]:'#FFFFFF';
+          VFX.claw(cx,cy,-.75,cell*1.25,cell*.95,col,520,Math.random()*60);
+          VFX.pop(cx,cy,cell*(v&&v.s?1.3:.85),col,460,80);}
+        else{const s=document.createElement('div');s.className='scratch';
+        s.innerHTML='<i></i><i></i><i></i>';el.appendChild(s);}
         setTimeout(()=>el.classList.add('matched'),130);
       }
     }
