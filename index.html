@@ -12,10 +12,11 @@
   html,body{height:100%;overflow:hidden;overscroll-behavior:none;position:fixed;inset:0;width:100%}
   body{
     font-family:-apple-system,"Segoe UI",system-ui,sans-serif;
-    background:#1E9BD6 url(assets/bg-reef.jpg) center bottom/cover no-repeat;
+    background:#1E9BD6;
     color:#fff;user-select:none;-webkit-user-select:none;touch-action:none;
     display:flex;flex-direction:column;align-items:center;
   }
+  #bg{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;object-position:center bottom;z-index:0;pointer-events:none}
   /* underwater ambience */
   .bubble{position:fixed;bottom:-10vh;z-index:1;pointer-events:none;animation:rise linear infinite;will-change:transform}
   .bubble .bw{width:100%;height:100%;animation:sway ease-in-out infinite alternate}
@@ -196,6 +197,7 @@
 </style>
 </head>
 <body>
+<img id="bg" src="assets/bg-ocean.jpg" alt="">
 
 <div id="hud">
   <div id="cat"><img src="assets/cat.png" alt=""></div>
@@ -428,7 +430,7 @@ const VFX=(()=>{
       float e=pow(1.-T,1.5);float core=exp(-L*7.)*e;
       c=(K*(st*1.3+rg)+vec3(1.)*(st*.8+core))*e;a=clamp((st+core+rg*.5)*e*.5,0.,1.);
     }
-    gl_FragColor=vec4(c,a*.55);}`;
+    c=clamp(c,0.,1.);gl_FragColor=vec4(c,max(max(max(c.r,c.g),c.b),a*.55));}`;
   function sh(t,s){const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);
     if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(o);return o;}
   let P;try{P=gl.createProgram();gl.attachShader(P,sh(gl.VERTEX_SHADER,VS));gl.attachShader(P,sh(gl.FRAGMENT_SHADER,FS));
@@ -438,7 +440,7 @@ const VFX=(()=>{
   gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
   const al=gl.getAttribLocation(P,'a');gl.enableVertexAttribArray(al);gl.vertexAttribPointer(al,2,gl.FLOAT,false,0,0);
   const U={};['R','C','H','A','T','Y','S','K'].forEach(n=>U[n]=gl.getUniformLocation(P,n));
-  gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE);
+  gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
   let dpr=1;function rs(){dpr=Math.min(devicePixelRatio||1,2);cv.width=innerWidth*dpr;cv.height=innerHeight*dpr;
     gl.viewport(0,0,cv.width,cv.height);}
   rs();addEventListener('resize',rs);
